@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "641271411936",
+    "project_id": "podcast-app-dde15",
+    "storage_bucket": "podcast-app-dde15.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:641271411936:android:d4bcc4abea7798bb820c85",
+        "android_client_info": {
+          "package_name": "com.example.podcast_ai_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGK2u7qbVz0wUYXvlbT7OygXkLouB3pbw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
