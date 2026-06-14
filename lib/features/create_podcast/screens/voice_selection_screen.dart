@@ -18,146 +18,210 @@ class VoiceSelectionScreen extends StatefulWidget {
 }
 class _VoiceSelectionScreenState extends State<VoiceSelectionScreen> {
   bool isLoading = true;
-  final ElevenServices elevenServices=ElevenServices();
-  List<VoiceModel> elevens=[];
-   int selectedChip = 0;
-  Future<void>loadVoices()async{
-    elevens=await ElevenServices.getVoices();
+  List<VoiceModel> elevens = [];
+  List<VoiceModel> filteredVoices = [];
+  int selectedChip = 0;
+  final TextEditingController _searchController = TextEditingController();
+
+  Future<void> loadVoices() async {
+    elevens = await ElevenServices.getVoices();
+    filteredVoices = elevens;
     setState(() {
       isLoading = false;
     });
   }
+
+  void _filterVoices(String query) {
+    setState(() {
+      filteredVoices = elevens
+          .where((v) => v.name.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
   @override
-  void initState(){
+  void initState() {
     super.initState();
     loadVoices();
   }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff050816),
-
-      body: SafeArea(child: Stack(
-        children: [
-          Column(
-            children: [
-      Padding(
-      padding: EdgeInsets.symmetric( horizontal: 16.w,
-        vertical: 10.h,),
-        child: Row(
+      body: SafeArea(
+        child: Stack(
           children: [
-            Container(
-              width: 32.w.clamp(28.0, 40.0),
-              height: 32.w.clamp(28.0, 40.0),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white12,
-                ),
-                image: const DecorationImage(
-                  image: AssetImage(
-                    "assets/images/myimg.jpg",
-                  ),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),SizedBox(width: 8.w,),
-
-            Text(
-              "VOX AI",
-              style: TextStyle(
-                color:  const Color(0xff4F7CFF),
-                fontWeight: FontWeight.bold,
-                fontSize: 20.sp.clamp(16.0, 24.0),
-
-              ),
-            ),
-            const Spacer(),
-            ProfileHeader(icon:  Icons.notifications_none, onTap: () {  },),
-            SizedBox(width: 8.w,),
-            ProfileHeader(icon: Icons.settings_outlined, onTap: () { AppRoutes.push(context,const AppSettingScreen()); },),
-            SizedBox(width: 8.w,),
-
-          ],
-        ),
-      ),  Divider(color: Colors.white10, height: 1.h,),
-
-          Expanded(child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: 16.w,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                Text("Select your Voice",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,fontSize: 22.sp.clamp(18.0, 28.0)),),
-                  SizedBox(height: 4.h,),
-                Text("Find the perfect AI personality for your podcast.",style: TextStyle(color: Colors.white54,fontSize: 14.sp.clamp(12.0, 16.0)),),
-                  SizedBox(height: 15.h,),
-                  Container(
-                    height: 50.h.clamp(45.0, 60.0),
-                    decoration:BoxDecoration(
-                      borderRadius: BorderRadius.circular(22.r),
-                      color:Colors.white,
-                    ),
-                    child:TextFormField(
-                      textAlignVertical: TextAlignVertical.center,
-                      decoration:const InputDecoration(
-                        hintText:"Search Your Voice",
-                        hintStyle:TextStyle(
-                          color:Colors.black45,
-                        ),
-                        prefixIcon:Icon(
-                          Icons.search, color:Colors.black54,
-                        ),
-                        border:InputBorder.none,
-                      ),
-                    ),
-                  ),
-          SizedBox(height: 20.h,),
-
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
+            Column(
               children: [
-                VoiceChip(title: 'ALL VOICES', isSelected:selectedChip==0,  onTap: () { setState(() {
-                  selectedChip=0;
-                }); },),
-                VoiceChip(title: 'NARRATOR', isSelected: selectedChip==1, onTap: () {setState(() {
-                  selectedChip=1;
-                });  },),
-                VoiceChip(title: 'STORY', isSelected: selectedChip==2, onTap: () { setState(() {
-                  selectedChip=2;
-                }); },),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 10.h,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 32.w.clamp(28.0, 40.0),
+                        height: 32.w.clamp(28.0, 40.0),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white12,
+                          ),
+                          image: const DecorationImage(
+                            image: AssetImage(
+                              "assets/images/myimg.jpg",
+                            ),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        "VOX AI",
+                        style: TextStyle(
+                          color: const Color(0xff4F7CFF),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp.clamp(16.0, 24.0),
+                        ),
+                      ),
+                      const Spacer(),
+                      ProfileHeader(icon: Icons.notifications_none, onTap: () {}),
+                      SizedBox(width: 8.w),
+                      ProfileHeader(
+                        icon: Icons.settings_outlined,
+                        onTap: () {
+                          AppRoutes.push(context, const AppSettingScreen());
+                        },
+                      ),
+                      SizedBox(width: 8.w),
+                    ],
+                  ),
+                ),
+                Divider(color: Colors.white10, height: 1.h),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Select your Voice",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 22.sp.clamp(18.0, 28.0),
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          "Find the perfect AI personality for your podcast.",
+                          style: TextStyle(
+                            color: Colors.white54,
+                            fontSize: 14.sp.clamp(12.0, 16.0),
+                          ),
+                        ),
+                        SizedBox(height: 15.h),
+                        Container(
+                          height: 50.h.clamp(45.0, 60.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(22.r),
+                            color: Colors.white,
+                          ),
+                          child: TextFormField(
+                            controller: _searchController,
+                            onChanged: _filterVoices,
+                            textAlignVertical: TextAlignVertical.center,
+                            decoration: const InputDecoration(
+                              hintText: "Search Your Voice",
+                              hintStyle: TextStyle(color: Colors.black45),
+                              prefixIcon: Icon(Icons.search, color: Colors.black54),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 20.h),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              VoiceChip(
+                                title: 'ALL VOICES',
+                                isSelected: selectedChip == 0,
+                                onTap: () {
+                                  setState(() {
+                                    selectedChip = 0;
+                                  });
+                                },
+                              ),
+                              VoiceChip(
+                                title: 'NARRATOR',
+                                isSelected: selectedChip == 1,
+                                onTap: () {
+                                  setState(() {
+                                    selectedChip = 1;
+                                  });
+                                },
+                              ),
+                              VoiceChip(
+                                title: 'STORY',
+                                isSelected: selectedChip == 2,
+                                onTap: () {
+                                  setState(() {
+                                    selectedChip = 2;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 30.h),
+                        isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : filteredVoices.isEmpty
+                                ? const Center(
+                                    child: Text(
+                                      "No voices found",
+                                      style: TextStyle(color: Colors.white70),
+                                    ),
+                                  )
+                                : ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount: filteredVoices.length,
+                                    itemBuilder: (context, index) {
+                                      final voice = filteredVoices[index];
+                                      bool isSelected =
+                                          widget.selectedVoices.contains(voice.voiceId);
+
+                                      return Padding(
+                                        padding: EdgeInsets.only(bottom: 10.h),
+                                        child: VoiceCard(
+                                          imagePath: 'assets/images/elena1.png',
+                                          name: voice.name,
+                                          category: 'AI Voice',
+                                          description: 'Voice Id :${voice.voiceId}',
+                                          isSelected: isSelected,
+                                          onTap: () {
+                                            Navigator.pop(context, voice);
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
-          ),
-          SizedBox(height: 30.h,),
-         elevens.isEmpty?
-         const Center(
-           child:
-           CircularProgressIndicator(),
-         ):
-         ListView.builder(
-             shrinkWrap: true,
-             physics:  const NeverScrollableScrollPhysics(),
-             itemCount: elevens.length,
-             itemBuilder: (context,index){
-           final voice = elevens[index];
-           
-           // Check if this voice is in our selected list (case-insensitive and trimmed)
-           bool isSelected = widget.selectedVoices
-               .where((s) => s.trim().isNotEmpty)
-               .any((s) => s.trim().toLowerCase() == voice.name.trim().toLowerCase());
-
-           return Padding(padding: EdgeInsets.only(bottom: 10.h),
-          child:   VoiceCard(imagePath: 'assets/images/elena1.png', name: voice.name, category: 'AI Voice', description: 'Voice Id :${voice.voiceId}',
-              isSelected: isSelected, 
-              onTap: () {
-                Navigator.pop(context,voice.name); 
-              },),);
-             }),
-          ],)),
-          )],),
 
           Positioned(
               bottom: 20.h,

@@ -47,7 +47,7 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 
 class GeminiService {
-  static const String apiKey = 'AQ.Ab8RN6Ki5aYWKxoBpRkKVcavCnY13RPunwZzAsRhyrveNrBfIA';
+  static const String apiKey = 'AQ.Ab8RN6JAdI4S4OnVJO6px856YLfBO6PffUzLf_gE_ctdl4utyA';
 
   static const String modelId = 'gemini-3.5-flash';
 
