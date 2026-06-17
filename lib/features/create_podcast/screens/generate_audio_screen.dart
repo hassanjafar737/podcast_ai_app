@@ -187,9 +187,9 @@ class _ScriptGeneratorScreenState extends State<ScriptGeneratorScreen> {
                           splashColor: Colors.white24,
                           highlightColor: Colors.white10,
                           onTap: () async {
-                            if (selectedHostVoice == null) {
+                            if (selectedHostVoice == null || selectedGuestVoice == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Please select at least a Host voice")),
+                                const SnackBar(content: Text("Please select both Host and Guest voices")),
                               );
                               return;
                             }
@@ -197,7 +197,8 @@ class _ScriptGeneratorScreenState extends State<ScriptGeneratorScreen> {
                               context,
                               AiGeneratingLoading(
                                 script: widget.script,
-                                voiceId: selectedHostVoice!.voiceId,
+                                hostVoiceId: selectedHostVoice!.voiceId,
+                                guestVoiceId: selectedGuestVoice!.voiceId,
                               ),
                             );
                           },

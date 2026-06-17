@@ -11,11 +11,13 @@ import '../widgets/status_card.dart';
 
 class AiGeneratingLoading extends StatefulWidget {
   final String script;
-  final String voiceId;
+  final String hostVoiceId;
+  final String guestVoiceId;
   const AiGeneratingLoading({
     super.key,
     required this.script,
-    required this.voiceId,
+    required this.hostVoiceId,
+    required this.guestVoiceId,
   });
 
   @override
@@ -30,12 +32,16 @@ class _AiGeneratingLoadingState extends State<AiGeneratingLoading> {
   }
 
   Future<void> generateAndNavigate() async {
-    String? audioPath = await ElevenServices.textTospeech(widget.voiceId, widget.script);
-    
-    if (audioPath != null && mounted) {
+    final audioPaths = await ElevenServices.generateDialogueAudio(
+      widget.script,
+      widget.hostVoiceId,
+      widget.guestVoiceId,
+    );
+
+    if (audioPaths.isNotEmpty && mounted) {
       AppRoutes.pushReplacement(
         context,
-        PodcastPlayerScreen(audioPath: audioPath),
+        PodcastPlayerScreen(audioPaths: audioPaths),
       );
     } else {
       if (mounted) {
