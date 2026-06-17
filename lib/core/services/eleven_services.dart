@@ -1,16 +1,154 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import '../model/voice_model.dart';
+
 class ElevenServices {
- static Future<List<VoiceModel>>getVoices()async{
-    final response = await http.get(Uri.parse("https://api.elevenlabs.io/v2/voices"),
-    headers: {
-    "xi-api-key":"sk_ff4dc222b556a23aa02c67ea742f97f9122f5501d7933ebb"
+  static const String _apiKey = "f8cf576e7b9e4126af176432add171e7";
+
+  static Future<List<VoiceModel>> getVoices() async {
+    print("DEBUG: Fetching voices from TopMediai (voices_list)...");
+    try {
+      final response = await http.get(
+        Uri.parse("https://api.topmediai.com/v1/voices_list"),
+        headers: {"x-api-key": _apiKey},
+      );
+
+      print("DEBUG: GetVoices Status: ${response.statusCode}");
+      
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        
+        // Screenshot ke mutabiq keys "Voice" ya "data" ho sakti hain
+        List? speakers;
+        if (data is Map) {
+          speakers = data['Voice'] ?? data['data'] ?? data['voices'];
+        } else if (data is List) {
+          speakers = data;
+        }
+
+        if (speakers != null) {
+          return speakers.map((item) => VoiceModel.fromTopMedia(item)).toList();
+        } else {
+          print("DEBUG: No voice list found in response: ${response.body}");
+          return [];
+        }
+      } else {
+        print("TopMediai GetVoices Error: ${response.body}");
+        return [];
+      }
+    } catch (e) {
+      print("TopMediai GetVoices Exception: $e");
+      return [];
     }
-    );
-    final data = jsonDecode(response.body);
-    final voices = data["voices"] as List;
-    return voices.map((item)=>VoiceModel.fromJson(item),
-    ).toList();
+  }
+
+  static List<Map<String, String>> parseScript(String script) {
+    final lines = <Map<String, String>>[];
+
+    for (var line in script.split("\n")) {
+      line = line.replaceAll("*", "").trim();
+      if (line.isEmpty) continue;
+
+      final upper = line.toUpperCase();
+      String speaker = "";
+      String text = "";
+
+      if (upper.startsWith("HOST")) {
+        speaker = "HOST";
+        text = line.substring(4).trim();
+      } else if (upper.startsWith("GUEST")) {
+        speaker = "GUEST";
+        text = line.substring(5).trim();
+      } else {
+        continue;
+      }
+
+      if (text.startsWith(":")) {
+        text = text.substring(1).trim();
+      }
+
+      if (text.isNotEmpty) {
+        lines.add({"speaker": speaker, "text": text});
+      }
+    }
+
+    return lines;
+  }
+
+  static Future<List<String>> generateDialogueAudio(
+    String script,
+    String hostVoiceId,
+    String guestVoiceId,
+  ) async {
+    final lines = parseScript(script);
+    final audioPaths = <String>[];
+
+    for (var i = 0; i < lines.length; i++) {
+      final speaker = lines[i]["speaker"]!;
+      final text = lines[i]["text"]!;
+      final voiceId = speaker == "HOST" ? hostVoiceId : guestVoiceId;
+
+      final path = await textTospeech(voiceId, text, index: i);
+      if (path != null) {
+        audioPaths.add(path);
+      }
+    }
+
+    return audioPaths;
+  }
+
+  static Future<String?> textTospeech(
+    String voiceId,
+    String text, {
+    int index = 0,
+  }) async {
+    print("DEBUG: TopMediai TTS called with voiceId: $voiceId");
+    try {
+      final response = await http.post(
+        Uri.parse("https://api.topmediai.com/v1/text2speech"),
+        headers: {
+          "x-api-key": _apiKey,
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "text": text,
+          "speaker": voiceId,
+          "format": "wav",
+        }),
+      ).timeout(const Duration(seconds: 50));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['data'] != null && data['data']['oss_url'] != null) {
+          final String audioUrl = data['data']['oss_url'];
+          print("DEBUG: Downloading audio from: $audioUrl");
+
+          final audioResponse = await http.get(Uri.parse(audioUrl));
+          final directory = await getTemporaryDirectory();
+
+          String extension = audioUrl.split('.').last.split('?').first;
+          final filePath = "${directory.path}/podcast_audio_$index.$extension";
+
+          final file = File(filePath);
+          if (await file.exists()) await file.delete();
+          await file.writeAsBytes(audioResponse.bodyBytes);
+
+          print("DEBUG: Audio saved successfully at: $filePath");
+          return filePath;
+        } else {
+          print("DEBUG: TopMediai returned no URL. Body: ${response.body}");
+          return null;
+        }
+      } else {
+        print("DEBUG: TopMediai TTS Error: ${response.statusCode} - ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      print("DEBUG: TopMediai Exception: $e");
+      return null;
+    }
   }
 }

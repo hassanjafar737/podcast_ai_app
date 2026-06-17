@@ -41,13 +41,14 @@ dependencies:
 
   lottie: ^3.3.1
   flutter_screenutil: ^5.9.0
+  http: ^1.6.0
+  path_provider: ^2.1.5
 
 dev_dependencies:
 
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  http: ^1.5.0
 
 
 flutter:
