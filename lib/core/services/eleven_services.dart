@@ -44,7 +44,66 @@ class ElevenServices {
     }
   }
 
-  static Future<String?> textTospeech(String voiceId, String text) async {
+  static List<Map<String, String>> parseScript(String script) {
+    final lines = <Map<String, String>>[];
+
+    for (var line in script.split("\n")) {
+      line = line.replaceAll("*", "").trim();
+      if (line.isEmpty) continue;
+
+      final upper = line.toUpperCase();
+      String speaker = "";
+      String text = "";
+
+      if (upper.startsWith("HOST")) {
+        speaker = "HOST";
+        text = line.substring(4).trim();
+      } else if (upper.startsWith("GUEST")) {
+        speaker = "GUEST";
+        text = line.substring(5).trim();
+      } else {
+        continue;
+      }
+
+      if (text.startsWith(":")) {
+        text = text.substring(1).trim();
+      }
+
+      if (text.isNotEmpty) {
+        lines.add({"speaker": speaker, "text": text});
+      }
+    }
+
+    return lines;
+  }
+
+  static Future<List<String>> generateDialogueAudio(
+    String script,
+    String hostVoiceId,
+    String guestVoiceId,
+  ) async {
+    final lines = parseScript(script);
+    final audioPaths = <String>[];
+
+    for (var i = 0; i < lines.length; i++) {
+      final speaker = lines[i]["speaker"]!;
+      final text = lines[i]["text"]!;
+      final voiceId = speaker == "HOST" ? hostVoiceId : guestVoiceId;
+
+      final path = await textTospeech(voiceId, text, index: i);
+      if (path != null) {
+        audioPaths.add(path);
+      }
+    }
+
+    return audioPaths;
+  }
+
+  static Future<String?> textTospeech(
+    String voiceId,
+    String text, {
+    int index = 0,
+  }) async {
     print("DEBUG: TopMediai TTS called with voiceId: $voiceId");
     try {
       final response = await http.post(
@@ -56,7 +115,7 @@ class ElevenServices {
         body: jsonEncode({
           "text": text,
           "speaker": voiceId,
-          "format": "wav", // Changed to wav for better compatibility
+          "format": "wav",
         }),
       ).timeout(const Duration(seconds: 50));
 
@@ -69,10 +128,9 @@ class ElevenServices {
 
           final audioResponse = await http.get(Uri.parse(audioUrl));
           final directory = await getTemporaryDirectory();
-          
-          // Extension dynamic nikaal rahe hain taake wav/mp3 ka masla na ho
+
           String extension = audioUrl.split('.').last.split('?').first;
-          final filePath = "${directory.path}/podcast_audio.$extension";
+          final filePath = "${directory.path}/podcast_audio_$index.$extension";
 
           final file = File(filePath);
           if (await file.exists()) await file.delete();

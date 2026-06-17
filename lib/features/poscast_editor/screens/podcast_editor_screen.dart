@@ -146,7 +146,7 @@ class _PodcastEditorState extends State<PodcastEditor>{
                       borderRadius: BorderRadius.circular(40.r),
                       splashColor: Colors.white24,
                       onTap: () {
-                        AppRoutes.push(context, PodcastPlayerScreen(audioPath: widget.audioPath));
+                        AppRoutes.push(context, PodcastPlayerScreen(audioPaths: [widget.audioPath]));
                       },
                       child: Container(
                         width: 55.w.clamp(45.0, 65.0),

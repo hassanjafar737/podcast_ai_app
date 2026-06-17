@@ -7,8 +7,8 @@ import 'package:podcast_ai_app/features/profile/widgets/profile_header.dart';
 import '../widgets/player_action_button.dart';
 
 class PodcastPlayerScreen extends StatefulWidget {
-  final String audioPath;
-  const PodcastPlayerScreen({super.key, required this.audioPath});
+  final List<String> audioPaths;
+  const PodcastPlayerScreen({super.key, required this.audioPaths});
   @override
   State<PodcastPlayerScreen> createState() => _PodcastPlayerScreenState();
 }
@@ -27,27 +27,31 @@ class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
 
   Future<void> _initPlayer() async {
     try {
-      print("DEBUG: Player trying to load: \${widget.audioPath}");
-      final file = File(widget.audioPath);
-      if (await file.exists()) {
-        print("DEBUG: File exists, size: \${await file.length()} bytes");
-        await _player.setFilePath(widget.audioPath);
-        
-        _player.durationStream.listen((d) {
-          if (mounted) setState(() => duration = d ?? Duration.zero);
-        });
-        _player.positionStream.listen((p) {
-          if (mounted) setState(() => position = p);
-        });
-        _player.playerStateStream.listen((state) {
-          if (mounted) setState(() => isPlaying = state.playing);
-        });
-        
-        print("DEBUG: Player successfully loaded file");
-        _player.play();
-      } else {
-        print("DEBUG: File NOT found at path: \${widget.audioPath}");
+      final sources = <AudioSource>[];
+      for (var path in widget.audioPaths) {
+        if (await File(path).exists()) {
+          sources.add(AudioSource.file(path));
+        }
       }
+
+      if (sources.isEmpty) {
+        print("DEBUG: No audio files found to play");
+        return;
+      }
+
+      await _player.setAudioSources(sources);
+
+      _player.durationStream.listen((d) {
+        if (mounted) setState(() => duration = d ?? Duration.zero);
+      });
+      _player.positionStream.listen((p) {
+        if (mounted) setState(() => position = p);
+      });
+      _player.playerStateStream.listen((state) {
+        if (mounted) setState(() => isPlaying = state.playing);
+      });
+
+      _player.play();
     } catch (e) {
       print("DEBUG: Error loading audio into player: \$e");
     }
