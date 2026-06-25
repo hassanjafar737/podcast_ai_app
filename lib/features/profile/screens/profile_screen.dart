@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:podcast_ai_app/core/providers/podcast_provider.dart';
+import 'package:podcast_ai_app/core/services/appwrite_service.dart';
+import 'package:podcast_ai_app/core/services/auth_services.dart';
 import 'package:podcast_ai_app/core/widgets/bottom_nav_bar.dart';
 import 'package:podcast_ai_app/features/auth/screens/login_screens.dart';
 import 'package:podcast_ai_app/features/profile/widgets/card.dart';
 import 'package:podcast_ai_app/features/profile/widgets/profile_header.dart';
 import 'package:podcast_ai_app/features/profile/widgets/setting_card.dart';
 import 'package:podcast_ai_app/features/subsciptions/screens/subscription_screen.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/services/navigator/navigator.dart';
+import '../../player/screens/mini_player.dart';
 import '../../settings/screen/app_setting_screen.dart';
 
 class ProfileScreen extends StatefulWidget{
@@ -191,8 +196,18 @@ class _ProfileScreenState extends State<ProfileScreen>{
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         IconButton(
-                          onPressed: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (_)=>const LoginScreens()));
+                          onPressed: ()async{
+                            try {
+                              await AppWriteServices.account.deleteSession(sessionId:"current");
+                              Provider.of<PodcastProvider>(context,listen:false).stopAndClear();
+                              AppRoutes.pushReplacement(
+                                  context, LoginScreens());
+                            }catch(e){
+                              print("Logout Error: $e");
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("Logout failed: $e")),
+                              );
+                            }
                           },
                           icon:const Icon(Icons.logout,
                             color: Colors.orange,),
@@ -214,7 +229,16 @@ class _ProfileScreenState extends State<ProfileScreen>{
             ),
           )
 
-          )],))
+          ),
+          const Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: MiniPlayer(),
+          ),
+        ],
+        )
+        )
     );
   }
 }

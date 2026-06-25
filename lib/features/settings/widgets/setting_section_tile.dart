@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
-class SettingsSectionTitle extends StatelessWidget{
+class
+SettingsSectionTitle extends StatelessWidget{
   final String title;
   const SettingsSectionTitle({
     super.key,

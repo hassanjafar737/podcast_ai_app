@@ -62,7 +62,8 @@ class OnboardingThird extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(28.r),
                   child: Image.asset(
-                    "assets/images/onboard1.png",
+                    "assets/images/onboarding3.png",
+                    key:UniqueKey(),
                     width: 280.w.clamp(200.0, 400.0),
                     fit: BoxFit.cover,
                   ),
@@ -107,7 +108,7 @@ class OnboardingThird extends StatelessWidget {
                 splashColor: Colors.white24,
                 highlightColor: Colors.white10,
                 onTap: () {
-                  AppRoutes.push(context,LoginScreens());
+                  AppRoutes.push(context, const LoginScreens());
                 },
                 child: AnimatedContainer(
                   duration: const Duration(seconds: 1,),
@@ -158,7 +159,7 @@ class OnboardingThird extends StatelessWidget {
                 child: Padding(
 
                   padding:
-                  const EdgeInsets.all(8),
+                  const EdgeInsets.all(8)
                 ),
 
               ),

@@ -162,7 +162,7 @@ class _ScriptGeneratorScreenState extends State<ScriptGeneratorScreen> {
                             CustomVoiceCard(
                               voiceName: selectedHostVoice?.name ?? "No Host Selected",
                               voiceType: 'Host • AI Personality',
-                              imagePath: "assets/images/onboarding1.png",
+                              imagePath: selectedHostVoice?.image ?? "assets/images/myimg.jpg",
                               isSelected: selectedHostVoice != null,
                               onTap: _selectHostVoice,
                               selectedVoice: selectedHostVoice?.name ?? "",
@@ -171,7 +171,7 @@ class _ScriptGeneratorScreenState extends State<ScriptGeneratorScreen> {
                             CustomVoiceCard(
                               voiceName: selectedGuestVoice?.name ?? "No Guest Selected",
                               voiceType: 'Guest • AI Personality',
-                              imagePath: "assets/images/onboarding2.png",
+                              imagePath: selectedGuestVoice?.image ?? "assets/images/myimg.jpg",
                               isSelected: selectedGuestVoice != null,
                               onTap: _selectGuestVoice,
                               selectedVoice: selectedGuestVoice?.name ?? "",
@@ -215,7 +215,7 @@ class _ScriptGeneratorScreenState extends State<ScriptGeneratorScreen> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.blue.withValues(alpha: 0.25),
+                                  color: Colors.blue.withOpacity(0.25),
                                   blurRadius: 10.w,
                                 ),
                               ],

@@ -5,7 +5,10 @@ import 'package:podcast_ai_app/features/library/widgets/library_card.dart';
 
 import '../../../core/services/navigator/navigator.dart';
 import '../../discover/widgets/header_icon.dart';
+import '../../player/screens/mini_player.dart';
+import '../../player/screens/podcast_player_screen.dart';
 import '../../settings/screen/app_setting_screen.dart';
+import 'library_services.dart';
 class LibraryScreen extends StatefulWidget{
   const LibraryScreen({super.key});
   @override
@@ -13,24 +16,48 @@ class LibraryScreen extends StatefulWidget{
 }
 class _LibraryScreenState extends State<LibraryScreen>{
   int selectedIndex=0;
-  final List<String> filters=[
+  List<dynamic> savedPodcasts = [];
+   bool isLoading = true;
+  final List<String> filters = [
     "Drafts", "Published", "Downloads", "Favorites",
   ];
+  Future<void> loadLibraryData() async {
+    try {
+      final data = await LibraryServices.getPodcasts();
+      setState(() {
+        savedPodcasts = data.reversed.toList(); // Newest first
+        isLoading = false;
+      });
+    } catch (e) {
+      print("DEBUG: Error loading library: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadLibraryData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xff050816),
+      backgroundColor: const Color(0xff050816),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.only(
           left: 14.w,
           right: 14.w,
           bottom: 30.h,
         ),
-        child: BottomNavbar(selectedIndex: 3,),),
+        child: const BottomNavbar(selectedIndex: 3),
+      ),
       body: SafeArea(
         child: Column(
           children: [
-           Padding(
+            Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: 16.w,
                 vertical: 10.h,
@@ -52,24 +79,29 @@ class _LibraryScreenState extends State<LibraryScreen>{
                         fit: BoxFit.cover,
                       ),
                     ),
-                  ),SizedBox(width: 8.w,),
+                  ),
+                  SizedBox(width: 8.w),
                   Text(
                     "VOX AI",
                     style: TextStyle(
                       color: const Color(0xff4F7CFF),
                       fontWeight: FontWeight.bold,
                       fontSize: 20.sp.clamp(16.0, 24.0),
-
                     ),
                   ),
                   const Spacer(),
-                  HeaderIcon(icon:  Icons.notifications_none, onTap: () {  },),
-                  SizedBox(width: 8.w,),
-                  HeaderIcon(icon: Icons.settings_outlined, onTap: () {AppRoutes.push(context,const AppSettingScreen(), );  },),
+                  HeaderIcon(icon: Icons.notifications_none, onTap: () {}),
+                  SizedBox(width: 8.w),
+                  HeaderIcon(
+                    icon: Icons.settings_outlined,
+                    onTap: () {
+                      AppRoutes.push(context, const AppSettingScreen());
+                    },
+                  ),
                 ],
               ),
             ),
-            Divider(color: Colors.white10, height: 1.h,),
+            Divider(color: Colors.white10, height: 1.h),
             Expanded(
               child: SingleChildScrollView(
                 child: Padding(
@@ -79,7 +111,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 20.h,),
+                      // SizedBox(height: 20.h),
                       Text(
                         "Library",
                         style: TextStyle(
@@ -96,8 +128,9 @@ class _LibraryScreenState extends State<LibraryScreen>{
                           fontSize: 12.sp.clamp(10.0, 14.0),
                         ),
                       ),
-                      SizedBox(height: 25.h,),
-                       SizedBox(
+                      SizedBox(height: 25.h),
+                      // Filter Chips Row
+                      SizedBox(
                         height: 40.h.clamp(35.0, 50.0),
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
@@ -110,15 +143,13 @@ class _LibraryScreenState extends State<LibraryScreen>{
                                 });
                               },
                               child: Container(
-                                margin: EdgeInsets.only(
-                                  right: 10.w,
-                                ),
-                                padding: EdgeInsets.symmetric(horizontal: 18.w,
-                                ),
+                                margin: EdgeInsets.only(right: 10.w),
+                                padding: EdgeInsets.symmetric(horizontal: 18.w),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(30.r),
-                                  color: selectedIndex == index ? const Color(0xffD8B4FE)
-                                      :const Color(0xff161616),
+                                  color: selectedIndex == index
+                                      ? const Color(0xffD8B4FE)
+                                      : const Color(0xff161616),
                                   border: Border.all(
                                     color: Colors.white10,
                                   ),
@@ -140,54 +171,69 @@ class _LibraryScreenState extends State<LibraryScreen>{
                           },
                         ),
                       ),
-                      SizedBox(height: 25.h,),
-                      LibraryCard(
-                        image: "assets/images/profile2.png",
-                        status: "DRAFTING",
-                        date: "Last saved 2h ago",
-                        title: "The Future of Neural Networks",
-                        duration: "12:45",
-                        voice: "AI Nova (Male)",
-                        favorite: false,
-                      ),
-                      SizedBox(height: 15.h,),
-                      LibraryCard(
-                        image: "assets/images/profile4.png",
-                        status: "PUBLISHED",
-                        date: "Oct 24, 2023",
-                        title: "Synthesis: Understanding AI",
-                        duration: "45:12",
-                        voice: "AI Seraphina",
-                        favorite: true,
-                      ),
-                      SizedBox(height: 15.h,),
-                      LibraryCard(
-                         image: "assets/images/profile3.png",
-                        status: "DRAFTING",
-                        date: "Yesterday",
-                        title: "Audio Post-Processing Masterclass",
-                        duration: "08:22",
-                        voice: "AI Nova (Male)",
-                        favorite: false,
-                      ),
-                      SizedBox(height: 15.h,),
-                      LibraryCard(
-                        image: "assets/images/sienna.png",
-                        status: "DRAFTING",
-                        date: "Oct 20, 2023",
-                        title: "Untitled Episode 04",
-                        duration: "--:--",
-                        voice: "Not assigned",
-                        favorite: false,
-                      ),
-                      SizedBox(height: 100.h,),
+                      SizedBox(height: 25.h),
+                      // Actual Podcast List
+                      isLoading
+                          ? const Center(child: CircularProgressIndicator(color: Color(0xffC084FC)))
+                          : savedPodcasts.isEmpty
+                              ? const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(top: 50),
+                                    child: Text("No podcasts yet", style: TextStyle(color: Colors.white54)),
+                                  ),
+                                )
+                              : ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: savedPodcasts.length,
+                                  itemBuilder: (context, index) {
+                                    final podcast = savedPodcasts[index];
+                                    final dateStr = podcast['date'] ?? "";
+                                    final displayDate = dateStr.split(' ')[0];
+
+                                    return Padding(
+                                      padding: EdgeInsets.only(bottom: 15.h),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          AppRoutes.push(
+                                            context,
+                                            PodcastPlayerScreen(
+                                              audioPaths: List<String>.from(podcast['paths']),
+                                              title: podcast['title'] ?? "Untitled Podcast",
+                                              description: "Voice: ${podcast['voice'] ?? "AI Voice"}",
+                                            ),
+                                          );
+                                        },
+                                        child: LibraryCard(
+                                          image: "assets/images/profile2.png",
+                                          status: "PUBLISHED",
+                                          date: displayDate,
+                                          title: podcast['title'] ?? "Untitled Podcast",
+                                          duration: "AI Generated",
+                                          voice: podcast['voice'] ?? "AI Voice",
+                                          favorite: podcast['isFavorite'] ?? false,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                      SizedBox(height: 100.h),
                     ],
                   ),
                 ),
               ),
             ),
-         ]
+            const Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: MiniPlayer(),
+            ),
+          ],
         ),
       ),
     );
-  }}
+  }
+}
+
+

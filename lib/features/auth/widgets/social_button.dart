@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../../core/theme/app_colors.dart';
 
 class SocialButton extends StatelessWidget {
-  // final IconData icon;
   final String image;
   final String text;
   final VoidCallback onTap;
@@ -16,38 +16,48 @@ class SocialButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: height * 0.07,
-        width: width*0.7,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(width * 0.45),
-          border: Border.all(
-            color: Colors.grey,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16.r),
+        child: Container(
+          height: 56.h,
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.06),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.10),
+              width: 1,
+            ),
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Positioned(
+                left: 0,
+                child: Image.asset(
+                  // color: Colors.white54,
+                  image,
+                  width: 24.w,
+                  height: 24.w,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              Text(
+                text,
+                style: TextStyle(
+                  color: const Color(0xFFE5E7EB),
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
           ),
         ),
-        child: ListTile(
-          leading: Image.asset(image,fit: BoxFit.cover,width: 26,),
-      //   leading: FaIcon(
-      //   icon,
-      //   color: Colors.orange,
-      //   size: width * 0.05,
-      // ),
-      title: Text(
-        text,
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: width * 0.047,
-          fontWeight: FontWeight.w800,
-        ),
-      ),
-    ),
       ),
     );
   }

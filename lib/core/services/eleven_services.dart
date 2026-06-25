@@ -5,41 +5,34 @@ import 'package:path_provider/path_provider.dart';
 import '../model/voice_model.dart';
 
 class ElevenServices {
-  static const String _apiKey = "f8cf576e7b9e4126af176432add171e7";
+  static const String _apiKey = "sk_ffe7d2b94fd1fe1f13da85fc6fe775b2b73820ee1f3bfa0b";
 
   static Future<List<VoiceModel>> getVoices() async {
-    print("DEBUG: Fetching voices from TopMediai (voices_list)...");
+    print("DEBUG: Fetching voices from ElevenLabs...");
     try {
       final response = await http.get(
-        Uri.parse("https://api.topmediai.com/v1/voices_list"),
-        headers: {"x-api-key": _apiKey},
+        Uri.parse("https://api.elevenlabs.io/v1/voices"),
+        headers: {
+          "xi-api-key": _apiKey,
+          "Content-Type": "application/json",
+        },
       );
 
       print("DEBUG: GetVoices Status: ${response.statusCode}");
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        
-        // Screenshot ke mutabiq keys "Voice" ya "data" ho sakti hain
-        List? speakers;
-        if (data is Map) {
-          speakers = data['Voice'] ?? data['data'] ?? data['voices'];
-        } else if (data is List) {
-          speakers = data;
+        final List voicesData = data['voices'] ?? [];
+        for (var v in voicesData) {
+          print("VOICE FOUND: ${v['name']} (Category: ${v['category']})");
         }
-
-        if (speakers != null) {
-          return speakers.map((item) => VoiceModel.fromTopMedia(item)).toList();
-        } else {
-          print("DEBUG: No voice list found in response: ${response.body}");
-          return [];
-        }
+        return voicesData.map((v) => VoiceModel.fromJson(v)).toList();
       } else {
-        print("TopMediai GetVoices Error: ${response.body}");
+        print("ElevenLabs GetVoices Error: ${response.body}");
         return [];
       }
     } catch (e) {
-      print("TopMediai GetVoices Exception: $e");
+      print("ElevenLabs GetVoices Exception: $e");
       return [];
     }
   }
@@ -104,51 +97,67 @@ class ElevenServices {
     String text, {
     int index = 0,
   }) async {
-    print("DEBUG: TopMediai TTS called with voiceId: $voiceId");
+    print("DEBUG: ElevenLabs TTS called with voiceId: $voiceId");
     try {
       final response = await http.post(
-        Uri.parse("https://api.topmediai.com/v1/text2speech"),
+        Uri.parse("https://api.elevenlabs.io/v1/text-to-speech/$voiceId"),
         headers: {
-          "x-api-key": _apiKey,
+          "xi-api-key": _apiKey,
           "Content-Type": "application/json",
         },
         body: jsonEncode({
           "text": text,
-          "speaker": voiceId,
-          "format": "wav",
+          "model_id": "eleven_multilingual_v2",
+          "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.5
+          }
         }),
-      ).timeout(const Duration(seconds: 50));
+      ).timeout(const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final directory = await getTemporaryDirectory();
+        final filePath = "${directory.path}/podcast_audio_$index.mp3";
 
-        if (data['data'] != null && data['data']['oss_url'] != null) {
-          final String audioUrl = data['data']['oss_url'];
-          print("DEBUG: Downloading audio from: $audioUrl");
+        final file = File(filePath);
+        if (await file.exists()) await file.delete();
+        await file.writeAsBytes(response.bodyBytes);
 
-          final audioResponse = await http.get(Uri.parse(audioUrl));
-          final directory = await getTemporaryDirectory();
-
-          String extension = audioUrl.split('.').last.split('?').first;
-          final filePath = "${directory.path}/podcast_audio_$index.$extension";
-
-          final file = File(filePath);
-          if (await file.exists()) await file.delete();
-          await file.writeAsBytes(audioResponse.bodyBytes);
-
-          print("DEBUG: Audio saved successfully at: $filePath");
-          return filePath;
-        } else {
-          print("DEBUG: TopMediai returned no URL. Body: ${response.body}");
-          return null;
-        }
+        print("DEBUG: Audio saved successfully at: $filePath");
+        return filePath;
       } else {
-        print("DEBUG: TopMediai TTS Error: ${response.statusCode} - ${response.body}");
+        print("DEBUG: ElevenLabs TTS Error: ${response.statusCode} - ${response.body}");
         return null;
       }
     } catch (e) {
-      print("DEBUG: TopMediai Exception: $e");
+      print("DEBUG: ElevenLabs Exception: $e");
       return null;
     }
+  }
+  static Future<bool>addVoices(String name,String filePath)async{
+    try{
+       var request = http.MultipartRequest(
+         'POST',
+         Uri.parse("https://api.elevenlabs.io/v1/voices/add")
+       );
+       request.headers.addAll({"xi-api-key": _apiKey,});
+       request.fields['name']=name;
+       request.fields['description']="Cloned via VOX AI App";
+       request.files.add(await http.MultipartFile.fromPath("files", filePath));
+       var response=await request.send();
+       if(response.statusCode==200){
+         print("DEBUG: Voice Cloned Successfully!");
+         return true;
+
+       }else{
+         final resBody=await response.stream.bytesToString();
+         print("DEBUG: Voice Cloned Successfully!");
+         return false;
+       }
+    }catch(e){
+      print("DEBUG: Exception in addVoice: $e");
+      return false;
+    }
+
   }
 }

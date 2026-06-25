@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:podcast_ai_app/core/widgets/bottom_nav_bar.dart';
 import 'package:podcast_ai_app/features/discover/widgets/filter_chip.dart';
 import '../../../core/services/navigator/navigator.dart';
+import '../../player/screens/mini_player.dart';
 import '../../settings/screen/app_setting_screen.dart';
 import '../widgets/create_card.dart';
 import '../widgets/header_icon.dart';
@@ -352,7 +353,15 @@ class _DiscoverScreenState extends State<DiscoverScreen>{
                         ),
                       ),
                       SizedBox(height: 30.h),
-              ]))))],
+              ])
+                ))),
+            const Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: MiniPlayer(),
+            ),
+          ],
                   ),
                 ),
               );
