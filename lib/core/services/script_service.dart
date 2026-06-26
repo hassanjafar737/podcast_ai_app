@@ -47,7 +47,7 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 
 class GeminiService {
-  static const String apiKey = 'AQ.Ab8RN6JAdI4S4OnVJO6px856YLfBO6PffUzLf_gE_ctdl4utyA';
+  static const String apiKey = 'AQ.Ab8RN6I8lu9L0hIXGbY7cDHgq5HnxqXfxqRrxByS8IwGEQ6j_g';
 
   static const String modelId = 'gemini-3.5-flash';
 
@@ -113,7 +113,6 @@ GUEST: ...
           }
         }
 
-        // Agar 404 aaye to iska matlab hai model name ya URL version galat hai
         print("Final Error Code: ${response.statusCode}");
         print("Response Body: ${response.body}");
         throw Exception("Gemini API Error: ${response.statusCode}");

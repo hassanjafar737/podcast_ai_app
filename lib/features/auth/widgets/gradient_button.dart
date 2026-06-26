@@ -1,58 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../../core/theme/app_colors.dart';
+
 class GradientButton extends StatelessWidget {
-  final   IconData?icon;
+  final IconData? icon;
   final String text;
   final VoidCallback onPressed;
+  final bool isLoading;
+
   const GradientButton({
     super.key,
     required this.icon,
     required this.text,
     required this.onPressed,
+    this.isLoading = false,
   });
+
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-    return GestureDetector(child: Container(
+    return Container(
+      width: double.infinity,
+      height: 56.h,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(screenWidth * 0.05),
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFF8E2DE2),
-            Color(0xFF4A00E0),
-          ],
-          begin: Alignment.bottomLeft,
-          end: Alignment.topRight,
-        ),
+        borderRadius: BorderRadius.circular(16.r),
+        gradient: AppColors.primaryGradient,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          fixedSize: Size(screenWidth * 0.9, screenHeight * 0.07),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.r),
+          ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: screenWidth * 0.045,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
+        child: isLoading
+            ? SizedBox(
+                height: 24.h,
+                width: 24.h,
+                child: const CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    text,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  if (icon != null) ...[
+                    SizedBox(width: 8.w),
+                    Icon(
+                      icon,
+                      size: 20.sp,
+                      color: Colors.white,
+                    ),
+                  ],
+                ],
               ),
-            ),
-            SizedBox(width: screenWidth * 0.02),
-            Icon(
-              icon,
-              size: screenHeight * 0.03,
-              color: Colors.black,
-            ),
-          ],
-        ),
       ),
-    ));
+    );
   }
 }

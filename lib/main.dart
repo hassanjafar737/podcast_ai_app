@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:podcast_ai_app/core/providers/podcast_provider.dart';
+import 'package:podcast_ai_app/core/theme/app_theme.dart';
 import 'package:podcast_ai_app/features/splash/screens/splash_screen.dart';
+import 'package:provider/provider.dart';
 
-void main()async {
-
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => PodcastProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -20,13 +30,7 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'VOX AI',
-          theme: ThemeData(
-            scaffoldBackgroundColor: Color(0xff0B0F1A),
-            fontFamily: 'Poppins',
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.deepPurple,
-            ),
-          ),
+          theme: AppTheme.darkTheme,
           home: child,
         );
       },

@@ -7,7 +7,10 @@ import '../../../core/widgets/bottom_nav_bar.dart';
 import '../../player/screens/podcast_player_screen.dart';
 class PodcastEditor extends StatefulWidget{
   final String audioPath;
-  const PodcastEditor({super.key, required this.audioPath});
+  final String title;
+  final String description;
+  const PodcastEditor({super.key, required this.title,
+    required this.description,required this.audioPath});
   @override
   State<StatefulWidget> createState() => _PodcastEditorState();
 }
@@ -82,7 +85,14 @@ class _PodcastEditorState extends State<PodcastEditor>{
                       borderRadius: BorderRadius.circular(20.r),
                       splashColor: Colors.white24,
                       onTap: () {
-                        AppRoutes.push(context,const ExportSuccessScreen());                      },
+                        AppRoutes.push(
+                          context,
+                          ExportSuccessScreen(
+                            title: widget.title,
+                            audioPath: widget.audioPath,
+                          ),
+                        );
+                      },
                       child: Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 12.w,
@@ -146,7 +156,7 @@ class _PodcastEditorState extends State<PodcastEditor>{
                       borderRadius: BorderRadius.circular(40.r),
                       splashColor: Colors.white24,
                       onTap: () {
-                        AppRoutes.push(context, PodcastPlayerScreen(audioPaths: [widget.audioPath]));
+                        AppRoutes.push(context, PodcastPlayerScreen(audioPaths: [widget.audioPath], title:widget.title, description: widget.description,));
                       },
                       child: Container(
                         width: 55.w.clamp(45.0, 65.0),
@@ -186,7 +196,7 @@ class _PodcastEditorState extends State<PodcastEditor>{
                 horizontal: 32.w,
               ),
               child: Text(
-                "The Neural Future of Sound",
+                widget.title,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
@@ -198,7 +208,7 @@ class _PodcastEditorState extends State<PodcastEditor>{
             ),
             SizedBox(height: 15.h,),
             Text(
-              "Ep. 42 • Marcus Chen & Dr. Sarah Laine",
+              widget.description,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white70,

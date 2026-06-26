@@ -36,8 +36,14 @@ class RecentProjectCard extends StatelessWidget {
           padding: EdgeInsets.all(12.w),
 
           decoration: BoxDecoration(
-            color: const Color(0xff0B0F1A),
+            color: const Color(0xff111827),
             borderRadius: BorderRadius.circular(30.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(.15),
+                blurRadius: 20,
+              ),
+            ],
             border: Border.all(
               color: Colors.white10,
             ),

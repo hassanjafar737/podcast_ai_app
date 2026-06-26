@@ -2,75 +2,94 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:podcast_ai_app/core/providers/podcast_provider.dart';
 import 'package:podcast_ai_app/core/widgets/bottom_nav_bar.dart';
 import 'package:podcast_ai_app/features/profile/widgets/profile_header.dart';
+import 'package:provider/provider.dart';
 import '../widgets/player_action_button.dart';
 
 class PodcastPlayerScreen extends StatefulWidget {
   final List<String> audioPaths;
-  const PodcastPlayerScreen({super.key, required this.audioPaths});
+  final String title;
+  final String description;
+  const PodcastPlayerScreen({super.key, required this.title,
+    required this.description,required this.audioPaths});
   @override
   State<PodcastPlayerScreen> createState() => _PodcastPlayerScreenState();
 }
 
 class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
-  final AudioPlayer _player = AudioPlayer();
-  bool isPlaying = false;
-  Duration duration = Duration.zero;
-  Duration position = Duration.zero;
 
+ List<Duration> _trackDurations = []; // Durations of each individual track
+  bool _isInitialised = false;
+ Duration _totalDuration = Duration.zero;
   @override
   void initState() {
     super.initState();
-    _initPlayer();
+    WidgetsBinding.instance.addPostFrameCallback((_){
+     final provider=Provider.of<PodcastProvider>(context,listen:false);
+    provider.playNewPodcast(widget.title, widget.audioPaths);
+    });
+    _calculateTotalDuration();
   }
+ Future<void> _calculateTotalDuration() async {
+   Duration total = Duration.zero;
+   List<Duration> computed = [];
+   for (var path in widget.audioPaths) {
+     final tempPlayer = AudioPlayer();
+     final d = await tempPlayer.setAudioSource(AudioSource.file(path));
+     if (d != null) {
+       computed.add(d);
+       total += d;
+     }
+     await tempPlayer.dispose();
+   }
+   setState(() {
+     _trackDurations = computed;
+     _totalDuration = total;
+     _isInitialised = true;
+   });
+ }
+ Duration _getAbsolutePosition(PodcastProvider provider) {//iska km slider ko ju hm pkr kr agay pichy krta wu
+   int currentIndex = provider.player.currentIndex ?? 0;
+   Duration acc = Duration.zero;
+   for (int i = 0; i < currentIndex && i < _trackDurations.length; i++) {
+     acc += _trackDurations[i];
+   }
+   return acc + provider.position;
+ }
 
-  Future<void> _initPlayer() async {
-    try {
-      final sources = <AudioSource>[];
-      for (var path in widget.audioPaths) {
-        if (await File(path).exists()) {
-          sources.add(AudioSource.file(path));
-        }
-      }
+ void _seekAbsolute(Duration absPos, PodcastProvider provider) {//jb user audio ko jgha sa hilta tu ya audio ko sai jgha la jta haiG
+   Duration acc = Duration.zero;
+   for (int i = 0; i < _trackDurations.length; i++) {
+     Duration trackD = _trackDurations[i];
+     if (absPos >= acc && absPos <= acc + trackD) {
+       provider.player.seek(absPos - acc, index: i);
+       break;
+     }
+     acc += trackD;
+   }
+ }
 
-      if (sources.isEmpty) {
-        print("DEBUG: No audio files found to play");
-        return;
-      }
-
-      await _player.setAudioSources(sources);
-
-      _player.durationStream.listen((d) {
-        if (mounted) setState(() => duration = d ?? Duration.zero);
-      });
-      _player.positionStream.listen((p) {
-        if (mounted) setState(() => position = p);
-      });
-      _player.playerStateStream.listen((state) {
-        if (mounted) setState(() => isPlaying = state.playing);
-      });
-
-      _player.play();
-    } catch (e) {
-      print("DEBUG: Error loading audio into player: \$e");
-    }
-  }
 
   @override
   void dispose() {
-    _player.dispose();
     super.dispose();
   }
 
   String _formatDuration(Duration d) {
     String minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
     String seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-    return "\$minutes:\$seconds";
+    return "$minutes:$seconds";
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider=context.watch<PodcastProvider>();
+    final currentAbsPos = _getAbsolutePosition(provider);
+    final duration = provider.duration;
+    final isPlaying = provider.isPlaying;
+
     return Scaffold(
       backgroundColor: const Color(0xff050816),
       bottomNavigationBar: Padding(
@@ -139,7 +158,7 @@ class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "The Neural Future of Sound",
+                        widget.title,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -152,25 +171,35 @@ class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Text("Episode 42 . AI & Creativity", style: TextStyle(color: Colors.white54, fontWeight: FontWeight.w600, fontSize: 12.sp.clamp(10.0, 14.0))),
+                        Text(widget.description, style: TextStyle(color: Colors.white54, fontWeight: FontWeight.w600, fontSize: 12.sp.clamp(10.0, 14.0))),
                       ],
                     ),
                     SizedBox(height: 15.h),
-                    Slider(
-                      min: 0,
-                      max: duration.inSeconds.toDouble(),
-                      value: position.inSeconds.toDouble().clamp(0, duration.inSeconds.toDouble() > 0 ? duration.inSeconds.toDouble() : 0),
-                      onChanged: (value) {
-                        _player.seek(Duration(seconds: value.toInt()));
-                      },
-                      activeColor: const Color(0xffC084FC),
-                      inactiveColor: Colors.white10,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    if (!_isInitialised)
+                      const Center(child: CircularProgressIndicator(color: Color(0xffC084FC)))
+                    else
+                    Column(
                       children: [
-                        Text(_formatDuration(position), style: TextStyle(color: Colors.white38, fontSize: 10.sp.clamp(8.0, 12.0), fontWeight: FontWeight.w600)),
-                        Text(_formatDuration(duration), style: TextStyle(color: Colors.white38, fontSize: 10.sp.clamp(8.0, 12.0), fontWeight: FontWeight.w600)),
+                        Slider(
+                          min: 0,
+                          max: _totalDuration.inSeconds.toDouble() > 0 ? _totalDuration.inSeconds.toDouble() : 1.0,
+                          value: currentAbsPos.inSeconds.toDouble().clamp(0, _totalDuration.inSeconds.toDouble()),
+                          onChanged: (value) {
+                            _seekAbsolute(Duration(seconds: value.toInt()),provider);
+                          },
+                          activeColor: const Color(0xffC084FC),
+                          inactiveColor: Colors.white10,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20.w),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(_formatDuration(currentAbsPos), style: TextStyle(color: Colors.white38, fontSize: 10.sp.clamp(8.0, 12.0), fontWeight: FontWeight.w600)),
+                              Text("-${_formatDuration(duration - currentAbsPos)}", style: TextStyle(color: Colors.white38, fontSize: 10.sp.clamp(8.0, 12.0), fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                     SizedBox(height: 30.h),
@@ -187,15 +216,11 @@ class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
                         ),
                         IconButton(
                           icon: Icon(Icons.replay_10, color: Colors.white70, size: 28.sp.clamp(24.0, 32.0)),
-                          onPressed: () => _player.seek(Duration(seconds: (position.inSeconds - 10).clamp(0, duration.inSeconds))),
+                          onPressed: () => provider.player.seek(provider.position-Duration(seconds: 10)),
                         ),
                         GestureDetector(
                           onTap: () {
-                            if (isPlaying) {
-                              _player.pause();
-                            } else {
-                              _player.play();
-                            }
+                            provider.togglePlay();
                           },
                           child: Container(
                             width: 80.w.clamp(60.0, 100.0),
@@ -213,12 +238,12 @@ class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
                                 ),
                               ],
                             ),
-                            child: Icon(isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded, color: Colors.white, size: 42.sp.clamp(32.0, 52.0)),
+                            child: Icon(provider.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded, color: Colors.white, size: 42.sp.clamp(32.0, 52.0)),
                           ),
                         ),
                         IconButton(
                           icon: Icon(Icons.forward_10, color: Colors.white70, size: 28.sp.clamp(24.0, 32.0)),
-                          onPressed: () => _player.seek(Duration(seconds: (position.inSeconds + 10).clamp(0, duration.inSeconds))),
+                          onPressed: () => provider.player.seek(provider.position +Duration(seconds: 10)),
                         ),
                         Icon(Icons.playlist_add, color: Colors.white70, size: 24.sp.clamp(20.0, 28.0)),
                       ],

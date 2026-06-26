@@ -30,8 +30,14 @@ class TrendingPodcastTile extends StatelessWidget {
           ),
           padding: EdgeInsets.all(12.w),
           decoration: BoxDecoration(
-            color: const Color(0xff0B0F1A),
+            color: const Color(0xff111827),
             borderRadius: BorderRadius.circular(24.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(.12),
+                blurRadius: 15,
+              ),
+            ],
             border: Border.all(
               color: Colors.white10,
             ),

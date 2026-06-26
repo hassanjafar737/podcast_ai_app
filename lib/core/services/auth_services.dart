@@ -17,13 +17,20 @@ class AuthServices {
     await AppWriteServices.account.createEmailPasswordSession(email: email, password: password);
   }
 
-  // Check if user is already logged in
   Future<bool> isLoggedIn() async {
     try {
       await AppWriteServices.account.get();
       return true;
     } catch (e) {
       return false;
+    }
+  }
+  Future<void> logout()async{
+    try{
+      await AppWriteServices.account.deleteSession(sessionId:"current");
+      print("User logged out successfully");
+    }catch(e){
+      print("Logout Error: $e");
     }
   }
 

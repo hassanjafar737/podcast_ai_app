@@ -22,31 +22,81 @@ class OnboardingFirst extends StatelessWidget {
         ),
         child: Column(
           children: [
-            SizedBox(height: 26.h,),
-            Container(
-              height: 200.h,
-              width: 245.w,
-              decoration: BoxDecoration(
-                borderRadius:
-                BorderRadius.circular(10.r),
-                color: Colors.white.withOpacity(0.03),
-              ),
-              child: Center(
-                child: Image.asset(
-                  "assets/images/onboarding3.png",
-                  width: 220.w,
-                ),
+            SizedBox(height: 30.h,),
+
+            Text(
+              "VOX AI",
+              style: TextStyle(
+                fontSize: 34,
+                fontWeight: FontWeight.w800,
+                color: Color(0xff7DD3FC),
               ),
             ),
+            SizedBox(height: 17.h,),
+            Container(
+              width: 180.w,
+              height: 180.w,
+              
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xffC084FC),
+                    Color(0xff3B82F6),
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color:
+                    const Color(0xff8B5CF6)
+                        .withOpacity(.45),
+                    blurRadius: 50,
+                  ),
+                ],
+              ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24)
+                    ,child: Image.asset(
+                      
+                  "assets/images/onboardi12.png",
+                   fit: BoxFit.cover,
+                    )
+            )
+              ),
+
             SizedBox(height: 26.h,),
-            Text(
-              "Create\nPodcasts with\nAI",
+            RichText(
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 36.sp.clamp(24.0, 40.0),
-                height: 1.1,
+              text: TextSpan(
+                children: [
+
+                  TextSpan(
+                    text:"Create\n",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize:38.sp,
+                      fontWeight:FontWeight.w800,
+                    ),
+                  ),
+
+                  TextSpan(
+                    text:"Studio-Quality\n",
+                    style: TextStyle(
+                      color: const Color(0xffC084FC),
+                      fontSize:38.sp,
+                      fontWeight:FontWeight.w800,
+                    ),
+                  ),
+
+                  TextSpan(
+                    text:"Podcasts with AI",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize:38.sp,
+                      fontWeight:FontWeight.w800,
+                    ),
+                  ),
+                ],
               ),
             ),
             SizedBox(height: 20.h,),
@@ -54,22 +104,26 @@ class OnboardingFirst extends StatelessWidget {
               padding: EdgeInsets.symmetric(
                 horizontal: 24.w,
               ),
-              child: Text(
-                "Transform your scripts into professional audio productions in seconds using advanced neural generation.",
+              child:Text(
+                "Transform ideas into studio-quality podcasts with AI voices, smart scripting, and professional audio production.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white60,
-                  fontSize: 14.sp.clamp(12.0, 16.0), // Max 16px
-                  height: 1.5,
+                  color: Colors.white70,
+                  fontSize:15.sp,
+                  height:1.6,
                 ),
               ),
             ),
-            SizedBox(height: 40.h,),
+            SizedBox(height: 120.h,),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Material(color:Colors.transparent,child: InkWell(onTap: (){ AppRoutes.push(context,LoginScreens());},child: Text("SKIP",style: TextStyle(color: Colors.white54),),),),
-   SizedBox(width: 45.w,),
+                Material(color:Colors.transparent,
+                  child: InkWell(onTap: (){
+                    AppRoutes.push(context,LoginScreens());},
+                    child: Text("SKIP",style: TextStyle(color: Colors.white54),),),),
+
+                Spacer(),
                 Material(
                   color: Colors.transparent,
                   child: InkWell(
@@ -82,15 +136,25 @@ class OnboardingFirst extends StatelessWidget {
                   },
                   child: AnimatedContainer(
                     duration: const Duration(seconds: 1,),
-                    width: 100.w.clamp(80.0, 150.0),
-                    height: 45.h.clamp(40.0, 60.0),
+                    width: 140.w.clamp(80.0, 150.0),
+                    height: 55.h.clamp(40.0, 60.0),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(35.r),
+                      boxShadow:[
+                        BoxShadow(
+                          color:
+                          const Color(0xff8B5CF6)
+                              .withOpacity(.45),
+                          blurRadius:30,
+                        ),
+                      ],
+
                       gradient: const LinearGradient(
                         colors: [
                           Color(0xff3B82F6),
                           Color(0xffC084FC),
                         ],
+
 
                       ),
 

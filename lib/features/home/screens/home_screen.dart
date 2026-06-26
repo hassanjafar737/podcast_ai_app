@@ -5,6 +5,8 @@ import 'package:podcast_ai_app/features/discover/widgets/header_icon.dart';
 import 'package:podcast_ai_app/features/home/widgets/create_podcast_screen.dart';
 import 'package:podcast_ai_app/features/home/widgets/feature_card.dart';
 import '../../../core/services/navigator/navigator.dart';
+import '../../library/widgets/library_header.dart';
+import '../../player/screens/mini_player.dart';
 import '../../settings/screen/app_setting_screen.dart';
 import '../widgets/dashboard_screen.dart';
 import '../widgets/recent_project_card.dart';
@@ -30,50 +32,52 @@ class _HomeScreenState extends State<HomeScreen>{
         child:  Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 16.w,
-                vertical: 8.h,
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 32.w.clamp(28.0, 40.0),
-                    height: 32.w.clamp(28.0, 40.0),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white12,
-                      ),
-                      image: const DecorationImage(
-                        image: AssetImage(
-                          "assets/images/myimg.jpg",
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),SizedBox(width: 8.w,),
-                  Text(
-                    "VOX AI",
-                    style: TextStyle(
-                      color: const Color(0xff4F7CFF),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20.sp.clamp(16.0, 24.0),
+              DashboardHeaderse( onProfileTap: () {  }, onNotificationTap: () {  }, onSettingsTap: () { AppRoutes.push(context, AppSettingScreen()); },),
 
-                    ),
-                  ),
-                  const Spacer(),
-                  HeaderIcon(
-                    icon:  Icons.notifications_none, onTap: () {  },
-                  ),
-
-                  SizedBox(width: 8.w,),
-                  HeaderIcon(icon: Icons.settings_outlined, onTap: () {AppRoutes.push(context,AppSettingScreen());  },),
-
-
-                ],
-              ),
-            ),
+            // Padding(
+            //   padding: EdgeInsets.symmetric(
+            //     horizontal: 16.w,
+            //     vertical: 8.h,
+            //   ),
+            //   child: Row(
+            //     children: [
+            //       Container(
+            //         width: 32.w.clamp(28.0, 40.0),
+            //         height: 32.w.clamp(28.0, 40.0),
+            //         decoration: BoxDecoration(
+            //           shape: BoxShape.circle,
+            //           border: Border.all(
+            //             color: Colors.white12,
+            //           ),
+            //           image: const DecorationImage(
+            //             image: AssetImage(
+            //               "assets/images/myimg.jpg",
+            //             ),
+            //             fit: BoxFit.cover,
+            //           ),
+            //         ),
+            //       ),SizedBox(width: 8.w,),
+            //       Text(
+            //         "VOX AI",
+            //         style: TextStyle(
+            //           color: const Color(0xff4F7CFF),
+            //           fontWeight: FontWeight.bold,
+            //           fontSize: 20.sp.clamp(16.0, 24.0),
+            //
+            //         ),
+            //       ),
+            //       const Spacer(),
+            //       HeaderIcon(
+            //         icon:  Icons.notifications_none, onTap: () {  },
+            //       ),
+            //
+            //       SizedBox(width: 8.w,),
+            //       HeaderIcon(icon: Icons.settings_outlined, onTap: () {AppRoutes.push(context,AppSettingScreen());  },),
+            //
+            //
+            //     ],
+            //   ),
+            // ),
             Divider(color: Colors.white10, height: 1.h,),
             Expanded(
                 child: SingleChildScrollView(
@@ -85,41 +89,65 @@ class _HomeScreenState extends State<HomeScreen>{
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                        SizedBox(height: 20.h,),
-                    Text(
-              "DASHBOARD",
-              style: TextStyle(
-                color: Colors.blueGrey,
-                fontSize: 14.sp.clamp(12.0, 16.0),
-                fontWeight:FontWeight.bold,
-                letterSpacing: 2,
-              ),
-            ),
+                        Text(
+                          "DASHBOARD",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 2,
+                          ),
+                        ),
             SizedBox(height: 4.h),
-            Text(
-              "Good Morning, Hassaan",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 22.sp.clamp(18.0, 26.0),
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
-            ),SizedBox(height: 10.h),
+                        Text(
+                          "Hi, Hassaan👋",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22.sp,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -.3,
+                          ),
+                        ),
+                        SizedBox(height: 10.h),
             CreatePodcastScreen(),
             SizedBox(height: 25.h,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(child: FeatureCard(onTap: () {  }, icon: Icons.auto_awesome, title: 'AI Scripts', iconColor: Colors.blue ,)),
-                SizedBox(width: 15.w,),
-                Expanded(child: FeatureCard(onTap: () {  }, icon: Icons.record_voice_over_outlined, title: 'Voice Cloning', iconColor: Colors.purple,)),
-              ],
-            ),
+                       Row(
+                          children: [
+
+                               QuickActionCard(
+                                title: "AI Scripts",
+                                subtitle: "Generate powerful\n podcast scripts",
+                                icon: Icons.auto_awesome_outlined,
+                                iconColor: const Color(0xffA855F7),
+                                onTap: () {},
+                              ),
+
+
+                            SizedBox(width: 10.w),
+                             QuickActionCard(
+                                title: "Voice Cloning",
+                                subtitle: "Clone your voice with AI",
+                                icon: Icons.graphic_eq,
+                                iconColor: const Color(0xff3B82F6),
+                                onTap: () {},
+                              ),
+
+                          ],
+                        ),
             SizedBox(height: 30.h,),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Recent Projects",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold, fontSize: 16.sp.clamp(14.0, 18.0)),),
-                Text("VIEW ALL",style: TextStyle(color: Colors.purple,fontWeight: FontWeight.bold, fontSize: 12.sp.clamp(10.0, 14.0))),
+                Text(
+                  "RECENT PROJECTS",
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.5,
+                    fontSize: 13.sp,
+                  ),
+                ),
+                Text("VIEW ALL",style: TextStyle(color: Colors.purpleAccent.withOpacity(.8),fontWeight: FontWeight.bold, fontSize: 12.sp.clamp(10.0, 14.0))),
               ],
             ),
             SizedBox(height: 15.h,),
@@ -171,8 +199,18 @@ class _HomeScreenState extends State<HomeScreen>{
         ),
 
       ),
+      ),
+
+            ),
+            const Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: MiniPlayer(),
+            ),
+          ]
+        )
       )
-            )]))
     );
   }
 }

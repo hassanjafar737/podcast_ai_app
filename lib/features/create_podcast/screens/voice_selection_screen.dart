@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:podcast_ai_app/core/model/voice_model.dart';
@@ -24,11 +25,77 @@ class _VoiceSelectionScreenState extends State<VoiceSelectionScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   Future<void> loadVoices() async {
-    elevens = await ElevenServices.getVoices();
-    filteredVoices = elevens;
     setState(() {
+      isLoading = true; // Dubaara loader dikhao
+      filteredVoices = []; // Purani list saaf karo
+    });
+    elevens = await ElevenServices.getVoices();
+    print("DEBUG: Total Voices Found: ${elevens.length}");
+    setState(() {
+      filteredVoices = elevens;
+
       isLoading = false;
     });
+  }
+  Future<void> _pickAndAddVoice() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.audio);
+
+      if (result == null || result.files.single.path == null) return;
+
+      String filePath = result.files.single.path!;
+      final TextEditingController nameController = TextEditingController();
+
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          backgroundColor: const Color(0xff111827),
+          title: const Text("Name your Voice", style: TextStyle(color: Colors.white)),
+          content: TextField(
+            controller: nameController,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              hintText: "e.g. My Custom Voice",
+              hintStyle: TextStyle(color: Colors.white38),
+              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // Sirf Dialog band hoga
+              child: const Text("Cancel", style: TextStyle(color: Colors.white54)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                String name = nameController.text.trim();
+                if (name.isNotEmpty) {
+                  Navigator.pop(context);
+                  setState(() => isLoading = true);
+                  bool success = await ElevenServices.addVoices(name, filePath);
+
+                  if (success) {
+                    await Future.delayed(const Duration(seconds: 2));
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Voice Added Successfully!"))
+                    );
+                    await loadVoices();
+                  }else {
+                    setState(() => isLoading = false);
+                  }
+                }
+              },
+              child: const Text("Add Voice"),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      print("Error picking file: $e");
+    }
   }
 
   void _filterVoices(String query) {
@@ -86,6 +153,7 @@ class _VoiceSelectionScreenState extends State<VoiceSelectionScreen> {
                       SizedBox(width: 8.w),
                       Text(
                         "VOX AI",
+
                         style: TextStyle(
                           color: const Color(0xff4F7CFF),
                           fontWeight: FontWeight.bold,
@@ -204,7 +272,7 @@ class _VoiceSelectionScreenState extends State<VoiceSelectionScreen> {
                                       return Padding(
                                         padding: EdgeInsets.only(bottom: 10.h),
                                         child: VoiceCard(
-                                          imagePath: 'assets/images/elena1.png',
+                                          imagePath: voice.image,
                                           name: voice.name,
                                           category: 'AI Voice',
                                           description: 'Voice Id :${voice.voiceId}',
@@ -232,7 +300,9 @@ class _VoiceSelectionScreenState extends State<VoiceSelectionScreen> {
                     borderRadius: BorderRadius.circular(40.r),
                     splashColor: Colors.white10,
                     highlightColor: Colors.white10,
-                    onTap: () {},
+                    onTap: () {
+                      _pickAndAddVoice();
+                    },
                     child: Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 22.w,
