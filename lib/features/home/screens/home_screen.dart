@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:podcast_ai_app/core/widgets/bottom_nav_bar.dart';
+import 'package:podcast_ai_app/features/create_podcast/screens/ai_generating_loading.dart';
 import 'package:podcast_ai_app/features/discover/widgets/header_icon.dart';
 import 'package:podcast_ai_app/features/home/widgets/create_podcast_screen.dart';
 import 'package:podcast_ai_app/features/home/widgets/feature_card.dart';
+import 'package:podcast_ai_app/features/player/screens/podcast_player_screen.dart';
+import 'package:podcast_ai_app/features/poscast_editor/screens/export_success_screen.dart';
 import '../../../core/services/navigator/navigator.dart';
 import '../../library/widgets/library_header.dart';
 import '../../player/screens/mini_player.dart';
@@ -32,52 +35,8 @@ class _HomeScreenState extends State<HomeScreen>{
         child:  Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-              DashboardHeaderse( onProfileTap: () {  }, onNotificationTap: () {  }, onSettingsTap: () { AppRoutes.push(context, AppSettingScreen()); },),
+              DashboardHeaderse( onProfileTap: () {  }, onNotificationTap: () { AppRoutes.push(context, ExportSuccessScreen(title: "", audioPath: "audioPath"));  }, onSettingsTap: () { AppRoutes.push(context, AppSettingScreen()); },),
 
-            // Padding(
-            //   padding: EdgeInsets.symmetric(
-            //     horizontal: 16.w,
-            //     vertical: 8.h,
-            //   ),
-            //   child: Row(
-            //     children: [
-            //       Container(
-            //         width: 32.w.clamp(28.0, 40.0),
-            //         height: 32.w.clamp(28.0, 40.0),
-            //         decoration: BoxDecoration(
-            //           shape: BoxShape.circle,
-            //           border: Border.all(
-            //             color: Colors.white12,
-            //           ),
-            //           image: const DecorationImage(
-            //             image: AssetImage(
-            //               "assets/images/myimg.jpg",
-            //             ),
-            //             fit: BoxFit.cover,
-            //           ),
-            //         ),
-            //       ),SizedBox(width: 8.w,),
-            //       Text(
-            //         "VOX AI",
-            //         style: TextStyle(
-            //           color: const Color(0xff4F7CFF),
-            //           fontWeight: FontWeight.bold,
-            //           fontSize: 20.sp.clamp(16.0, 24.0),
-            //
-            //         ),
-            //       ),
-            //       const Spacer(),
-            //       HeaderIcon(
-            //         icon:  Icons.notifications_none, onTap: () {  },
-            //       ),
-            //
-            //       SizedBox(width: 8.w,),
-            //       HeaderIcon(icon: Icons.settings_outlined, onTap: () {AppRoutes.push(context,AppSettingScreen());  },),
-            //
-            //
-            //     ],
-            //   ),
-            // ),
             Divider(color: Colors.white10, height: 1.h,),
             Expanded(
                 child: SingleChildScrollView(
@@ -98,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen>{
                             letterSpacing: 2,
                           ),
                         ),
-            SizedBox(height: 4.h),
+                      SizedBox(height: 4.h),
                         Text(
                           "Hi, Hassaan👋",
                           style: TextStyle(
@@ -109,11 +68,10 @@ class _HomeScreenState extends State<HomeScreen>{
                           ),
                         ),
                         SizedBox(height: 10.h),
-            CreatePodcastScreen(),
-            SizedBox(height: 25.h,),
+                        CreatePodcastScreen(),
+                        SizedBox(height: 25.h,),
                        Row(
                           children: [
-
                                QuickActionCard(
                                 title: "AI Scripts",
                                 subtitle: "Generate powerful\n podcast scripts",
@@ -121,7 +79,6 @@ class _HomeScreenState extends State<HomeScreen>{
                                 iconColor: const Color(0xffA855F7),
                                 onTap: () {},
                               ),
-
 
                             SizedBox(width: 10.w),
                              QuickActionCard(
@@ -152,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen>{
             ),
             SizedBox(height: 15.h,),
             SizedBox(
-              height: 260.h.clamp(240.0, 300.0), // Height barha di
+              height: 260.h.clamp(240.0, 300.0),
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class ManagementTile extends StatelessWidget{
-
+class ManagementTile extends StatelessWidget {
   final IconData leftIcon;
   final String title;
   final String subtitle;
@@ -18,53 +18,47 @@ class ManagementTile extends StatelessWidget{
   });
 
   @override
-  Widget build(BuildContext context){
-    final screenWidth=MediaQuery.of(context).size.width;
-    final screenHeight=MediaQuery.of(context).size.height;
+  Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(screenWidth*0.06,),
+        borderRadius: BorderRadius.circular(24.r),
         splashColor: Colors.white24,
         highlightColor: Colors.white10,
         onTap: onTap,
         child: Container(
           width: double.infinity,
-          padding: EdgeInsets.symmetric(
-            horizontal: screenWidth*0.045,
-            vertical: screenHeight*0.022,
-          ),
+          padding: EdgeInsets.all(20.w),
           decoration: BoxDecoration(
-            color: const Color(0xff0B0F1A),
-            borderRadius: BorderRadius.circular(screenWidth*0.06,),
+            color: const Color(0xFF111827),
+            borderRadius: BorderRadius.circular(24.r),
             border: Border.all(
-              color: Colors.white10,
+              color: Colors.white.withOpacity(.05),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.purple.withOpacity(0.05),
-                blurRadius: screenWidth*0.05,
+                color: Colors.black.withOpacity(.15),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
           child: Row(
             children: [
               Container(
-                width: screenWidth*0.11,
-                height: screenWidth*0.11,
+                width: 48.w,
+                height: 48.w,
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(14.r),
+                  color: const Color(0xffC084FC).withOpacity(0.12),
                 ),
                 child: Icon(
                   leftIcon,
                   color: const Color(0xffC084FC),
-                  size: screenWidth*0.055,
-
+                  size: 22.sp,
                 ),
-
               ),
-              SizedBox(width: screenWidth*0.04,),
+              SizedBox(width: 16.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,42 +69,34 @@ class ManagementTile extends StatelessWidget{
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: screenWidth*0.04,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16.sp,
                       ),
                     ),
-                    SizedBox(height: screenHeight*0.004,),
+                    SizedBox(height: 4.h),
                     Text(
                       subtitle,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Colors.white54,
+                        color: const Color(0xFF9CA3AF),
                         height: 1.5,
-                        fontSize: screenWidth*0.03,
-
+                        fontSize: 12.sp,
                       ),
-
                     )
                   ],
                 ),
               ),
-              SizedBox(width: screenWidth*0.02,),
+              SizedBox(width: 12.w),
               Icon(
                 rightIcon,
-                color: Colors.white54,
-                size: screenWidth*0.05,
-
+                color: Colors.white.withOpacity(.45),
+                size: 20.sp,
               ),
-
             ],
-
           ),
-
         ),
-
       ),
-
     );
   }
 }

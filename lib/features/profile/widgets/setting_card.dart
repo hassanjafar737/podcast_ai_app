@@ -1,80 +1,126 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class SettingCard extends StatelessWidget{
+class SettingCard extends StatefulWidget {
   final IconData icon;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
-  const SettingCard({super.key,
+  final Color accentColor;
+
+  const SettingCard({
+    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,
-    required this.onTap,});
+    required this.onTap,
+    this.accentColor = const Color(0xff8B5CF6),
+  });
+
+  @override
+  State<SettingCard> createState() => _SettingCardState();
+}
+
+class _SettingCardState extends State<SettingCard> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-     return GestureDetector(
-        onTap: onTap,
+    return GestureDetector(
+      onTapDown: (_) => _controller.forward(),
+      onTapUp: (_) => _controller.reverse(),
+      onTapCancel: () => _controller.reverse(),
+      onTap: widget.onTap,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
         child: Container(
-            // margin: EdgeInsets.only(bottom: screenHeight * 0.025,),
-          margin: EdgeInsets.all(10),
-            padding: EdgeInsets.all(screenWidth * 0.04,),
-            decoration: BoxDecoration(
-              color: const Color(0xff0F0F15),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.05),
-              ),
+          height: 90.h,
+          margin: EdgeInsets.only(bottom: 16.h, left: 16.w, right: 16.w),
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          decoration: BoxDecoration(
+            color: const Color(0xff111827),
+            borderRadius: BorderRadius.circular(24.r),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.05),
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
           child: Row(
             children: [
               Container(
-                padding: EdgeInsets.all(screenWidth * 0.025),
-          decoration: BoxDecoration(
-
-            shape: BoxShape.circle,
-            color: Colors.white.withOpacity(0.05),
-          ),
-          child: Icon(
-            icon,
-           color: Color(0xffC4B5FD),
-            size: screenWidth * 0.05,
-          ),
-        ),
-       SizedBox(width: screenWidth * 0.04),
-         Expanded(
-           child: Column(
-             crossAxisAlignment: CrossAxisAlignment.start,
-             children: [
-               Text(
-                 title,
-                 style: TextStyle(
-                   color: Colors.white,
-                   fontWeight: FontWeight.w600,
-                   fontSize: screenWidth * 0.038,
-                 ),
-               ),
-               // SizedBox(height: screenHeight *0.004,),
-               Text(
-                 subtitle,
-                 style: TextStyle(
-                   color: Colors.white54,
-                   fontSize: screenWidth * 0.028,
-                 ),
-               ),
+                width: 48.w,
+                height: 48.w,
+                decoration: BoxDecoration(
+                  color: widget.accentColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+                child: Icon(
+                  widget.icon,
+                  color: widget.accentColor,
+                  size: 24.sp,
+                ),
+              ),
+              SizedBox(width: 16.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      widget.title,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16.sp,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      widget.subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: const Color(0xff9CA3AF),
+                        fontSize: 12.sp,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: Colors.white.withOpacity(0.45),
+                size: 22.sp,
+              ),
             ],
           ),
         ),
-              Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.white38,
-                size: screenWidth * 0.04,
-              ),
-     ]))
-     );
-
-            }
+      ),
+    );
+  }
 }
