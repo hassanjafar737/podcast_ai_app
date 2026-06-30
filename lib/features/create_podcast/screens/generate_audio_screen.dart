@@ -3,9 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:podcast_ai_app/core/model/voice_model.dart';
 import 'package:podcast_ai_app/features/create_podcast/screens/ai_generating_loading.dart';
 import 'package:podcast_ai_app/features/create_podcast/screens/voice_selection_screen.dart';
+import 'package:podcast_ai_app/features/library/widgets/library_header.dart';
+import 'dart:ui';
 import '../../../core/services/navigator/navigator.dart';
 import '../../../core/widgets/bottom_nav_bar.dart';
-import '../../profile/widgets/profile_header.dart';
 import '../../settings/screen/app_setting_screen.dart';
 import '../widgets/coustom_voice_card.dart';
 import '../widgets/management_tile.dart';
@@ -18,9 +19,30 @@ class ScriptGeneratorScreen extends StatefulWidget {
   State createState() => _ScriptGeneratorScreenState();
 }
 
-class _ScriptGeneratorScreenState extends State<ScriptGeneratorScreen> {
+class _ScriptGeneratorScreenState extends State<ScriptGeneratorScreen> with TickerProviderStateMixin {
   VoiceModel? selectedHostVoice;
   VoiceModel? selectedGuestVoice;
+
+  late AnimationController _btnController;
+  late Animation<double> _btnScale;
+
+  @override
+  void initState() {
+    super.initState();
+    _btnController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _btnScale = Tween<double>(begin: 1.0, end: 0.98).animate(
+      CurvedAnimation(parent: _btnController, curve: Curves.easeOutCubic),
+    );
+  }
+
+  @override
+  void dispose() {
+    _btnController.dispose();
+    super.dispose();
+  }
 
   Future<void> _selectHostVoice() async {
     final result = await AppRoutes.push(
@@ -62,239 +84,253 @@ class _ScriptGeneratorScreenState extends State<ScriptGeneratorScreen> {
         ),
         child: const BottomNavbar(selectedIndex: 2),
       ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-              child: Row(
-                children: [
-                  Container(
-                    width: 32.w.clamp(28.0, 40.0),
-                    height: 32.w.clamp(28.0, 40.0),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white12,
-                      ),
-                      image: const DecorationImage(
-                        image: AssetImage(
-                          "assets/images/myimg.jpg",
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 8.w),
-                  Text(
-                    "VOX AI",
-                    style: TextStyle(
-                      color: const Color(0xff4F7CFF),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20.sp.clamp(16.0, 24.0),
-                    ),
-                  ),
-                  const Spacer(),
-                  ProfileHeader(icon: Icons.notifications_none, onTap: () {}),
-                  SizedBox(width: 8.w),
-                  ProfileHeader(
-                    icon: Icons.settings_outlined,
-                    onTap: () {
+      body: Stack(
+        children: [
+
+          Positioned(
+            top: -100.h,
+            left: -50.w,
+            child: Container(
+              width: 300.w,
+              height: 300.w,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFF3B82F6).withOpacity(0.08),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                child: Container(color: Colors.transparent),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 100.h,
+            right: -100.w,
+            child: Container(
+              width: 400.w,
+              height: 400.w,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFF8B5CF6).withOpacity(0.10),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 120, sigmaY: 120),
+                child: Container(color: Colors.transparent),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                  child: DashboardHeaderse(
+                    onProfileTap: () {},
+                    onNotificationTap: () {},
+                    onSettingsTap: () {
                       AppRoutes.push(context, const AppSettingScreen());
                     },
                   ),
-                  SizedBox(width: 8.w),
-                ],
-              ),
-            ),
-            Divider(color: Colors.white10, height: 1.h),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.all(13.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Script Generator",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 32.sp.clamp(24.0, 36.0),
-                        ),
-                      ),
-                      SizedBox(height: 20.h),
-                      ScriptBox(script: widget.script),
-                      SizedBox(height: 30.h),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(left: 8.w),
-                                  child: Text(
-                                    "SELECT AI VOICES",
-                                    style: TextStyle(
-                                      color: Colors.blueGrey,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.sp.clamp(14.0, 20.0),
-                                    ),
-                                  ),
+                ),
+                Divider(color: Colors.white10, height: 1.h),
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 24.h),
+                          Text(
+                            "Script Generator",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 34.sp,
+                              letterSpacing: -0.4,
+                            ),
+                          ),
+                          SizedBox(height: 6.h),
+                          Text(
+                            "Select AI voices for your Host and Guest before generating your podcast.",
+                            style: TextStyle(
+                              color: const Color(0xFF9CA3AF),
+                              fontSize: 14.sp,
+                              height: 1.5,
+                            ),
+                          ),
+                          SizedBox(height: 32.h),
+                          ScriptBox(script: widget.script),
+                          SizedBox(height: 32.h),
+                          Row(
+                            children: [
+                              Text(
+                                "SELECT AI VOICES",
+                                style: TextStyle(
+                                  color: const Color(0xFF9CA3AF),
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.2,
+                                  fontSize: 13.sp,
                                 ),
-                                const Spacer(),
-                                InkWell(
-                                  onTap: _selectHostVoice,
-                                  child: Text(
-                                    "VIEW ALL VOICES",
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 11.sp.clamp(10.0, 14.0),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            CustomVoiceCard(
-                              voiceName: selectedHostVoice?.name ?? "No Host Selected",
-                              voiceType: 'Host • AI Personality',
-                              imagePath: selectedHostVoice?.image ?? "assets/images/myimg.jpg",
-                              isSelected: selectedHostVoice != null,
-                              onTap: _selectHostVoice,
-                              selectedVoice: selectedHostVoice?.name ?? "",
-                            ),
-                            const SizedBox(height: 8),
-                            CustomVoiceCard(
-                              voiceName: selectedGuestVoice?.name ?? "No Guest Selected",
-                              voiceType: 'Guest • AI Personality',
-                              imagePath: selectedGuestVoice?.image ?? "assets/images/myimg.jpg",
-                              isSelected: selectedGuestVoice != null,
-                              onTap: _selectGuestVoice,
-                              selectedVoice: selectedGuestVoice?.name ?? "",
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 20.h),
-                      Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(35.r),
-                          splashColor: Colors.white24,
-                          highlightColor: Colors.white10,
-                          onTap: () async {
-                            if (selectedHostVoice == null || selectedGuestVoice == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Please select both Host and Guest voices")),
-                              );
-                              return;
-                            }
-                            AppRoutes.push(
-                              context,
-                              AiGeneratingLoading(
-                                script: widget.script,
-                                hostVoiceId: selectedHostVoice!.voiceId,
-                                guestVoiceId: selectedGuestVoice!.voiceId,
                               ),
-                            );
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            height: 55.h.clamp(45.0, 65.0),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(35.r),
-                              gradient: const LinearGradient(
-                                colors: [
-                                  Color(0xffC084FC),
-                                  Color(0xff2563EB),
-                                ],
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.blue.withOpacity(0.25),
-                                  blurRadius: 10.w,
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.mic_none,
-                                  color: Colors.white,
-                                  size: 20.sp.clamp(16.0, 24.0),
-                                ),
-                                SizedBox(width: 10.w),
-                                Text(
-                                  "Generate Audio",
+                              const Spacer(),
+                              InkWell(
+                                onTap: _selectHostVoice,
+                                child: Text(
+                                  "VIEW ALL VOICES",
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: const Color(0xFF8B5CF6).withOpacity(0.9),
                                     fontWeight: FontWeight.w600,
-                                    fontSize: 16.sp.clamp(14.0, 18.0),
+                                    fontSize: 12.sp,
                                   ),
                                 ),
-                              ],
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 16.h),
+                          CustomVoiceCard(
+                            voiceName: selectedHostVoice?.name ?? "No Host Selected",
+                            voiceType: 'Host • AI Personality',
+                            imagePath: selectedHostVoice?.image ?? "assets/images/myimg.jpg",
+                            isSelected: selectedHostVoice != null,
+                            onTap: _selectHostVoice,
+                            accentColor: const Color(0xFF3B82F6),
+                          ),
+                          CustomVoiceCard(
+                            voiceName: selectedGuestVoice?.name ?? "No Guest Selected",
+                            voiceType: 'Guest • AI Personality',
+                            imagePath: selectedGuestVoice?.image ?? "assets/images/myimg.jpg",
+                            isSelected: selectedGuestVoice != null,
+                            onTap: _selectGuestVoice,
+                            accentColor: const Color(0xFF8B5CF6),
+                          ),
+                          SizedBox(height: 32.h),
+                          GestureDetector(
+                            onTapDown: (_) => _btnController.forward(),
+                            onTapUp: (_) => _btnController.reverse(),
+                            onTapCancel: () => _btnController.reverse(),
+                            onTap: () async {
+                              if (selectedHostVoice == null || selectedGuestVoice == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text("Please select both Host and Guest voices")),
+                                );
+                                return;
+                              }
+                              AppRoutes.push(
+                                context,
+                                AiGeneratingLoading(
+                                  script: widget.script,
+                                  hostVoiceId: selectedHostVoice!.voiceId,
+                                  guestVoiceId: selectedGuestVoice!.voiceId,
+                                ),
+                              );
+                            },
+                            child: ScaleTransition(
+                              scale: _btnScale,
+                              child: Container(
+                                width: double.infinity,
+                                height: 58.h,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(18.r),
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF3B82F6),
+                                      Color(0xFF8B5CF6),
+                                    ],
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF8B5CF6).withOpacity(0.35),
+                                      blurRadius: 24,
+                                    ),
+                                  ],
+                                ),
+                                child: Stack(
+                                  children: [
+                                    Positioned(
+                                      left: 20.w,
+                                      top: 0,
+                                      bottom: 0,
+                                      child: Icon(
+                                        Icons.mic,
+                                        color: Colors.white,
+                                        size: 22.sp,
+                                      ),
+                                    ),
+                                    Center(
+                                      child: Text(
+                                        "Generate Audio",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 0.5,
+                                          fontSize: 16.sp,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                      SizedBox(height: 12.h),
-                      Center(
-                        child: Text(
-                          "Estimated length: 2:45 • 420 words",
-                          style: TextStyle(
-                            color: Colors.white54,
-                            fontSize: 12.sp.clamp(10.0, 14.0),
+                          SizedBox(height: 16.h),
+                          Center(
+                            child: Text(
+                              "Estimated length: 2:45 • 420 words",
+                              style: TextStyle(
+                                color: const Color(0xFF9CA3AF),
+                                fontSize: 12.sp,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
                           ),
-                        ),
+                          SizedBox(height: 32.h),
+                          Text(
+                            "Script Management",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 24.sp,
+                            ),
+                          ),
+                          SizedBox(height: 20.h),
+                          ManagementTile(
+                            leftIcon: Icons.article_outlined,
+                            title: "AI Tone & Style",
+                            subtitle: "Adjust writing persona and complexity",
+                            rightIcon: Icons.tune,
+                            onTap: () {},
+                          ),
+                          SizedBox(height: 16.h),
+                          ManagementTile(
+                            leftIcon: Icons.record_voice_over_outlined,
+                            title: "Voice Settings",
+                            subtitle: selectedHostVoice == null 
+                                ? "Choose AI voices and speech style"
+                                : "Selected: ${selectedHostVoice!.name}",
+                            rightIcon: Icons.graphic_eq,
+                            onTap: _selectHostVoice,
+                          ),
+                          SizedBox(height: 16.h),
+                          ManagementTile(
+                            leftIcon: Icons.settings_outlined,
+                            title: "Output Settings",
+                            subtitle: "Configure export formats and cloud sync",
+                            rightIcon: Icons.description_outlined,
+                            onTap: () {},
+                          ),
+                          SizedBox(height: 120.h),
+                        ],
                       ),
-                      SizedBox(height: 40.h),
-                      Text(
-                        "Script Management",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 24.sp.clamp(20.0, 30.0),
-                        ),
-                      ),
-                      SizedBox(height: 20.h),
-                      ManagementTile(
-                        leftIcon: Icons.article_outlined,
-                        title: "AI Tone & Style",
-                        subtitle: "Adjust writing persona and complexity",
-                        rightIcon: Icons.tune,
-                        onTap: () {},
-                      ),
-                      SizedBox(height: 15.h),
-                      ManagementTile(
-                        leftIcon: Icons.record_voice_over_outlined,
-                        title: "Voice Settings",
-                        subtitle: selectedHostVoice == null 
-                            ? "Choose AI voices and speech style"
-                            : "Selected: ${selectedHostVoice!.name}",
-                        rightIcon: Icons.graphic_eq,
-                        onTap: _selectHostVoice,
-                      ),
-                      SizedBox(height: 15.h),
-                      ManagementTile(
-                        leftIcon: Icons.settings_outlined,
-                        title: "Output Settings",
-                        subtitle: "Configure export formats and cloud sync",
-                        rightIcon: Icons.description_outlined,
-                        onTap: () {},
-                      ),
-                      SizedBox(height: 60.h),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

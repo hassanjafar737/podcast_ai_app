@@ -5,7 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import '../model/voice_model.dart';
 
 class ElevenServices {
-  static const String _apiKey = "sk_ffe7d2b94fd1fe1f13da85fc6fe775b2b73820ee1f3bfa0b";
+  static const String _apiKey = "sk_7f33dde4f098e766780a7908bdb31e4e2949afb481c93d9d";
 
   static Future<List<VoiceModel>> getVoices() async {
     print("DEBUG: Fetching voices from ElevenLabs...");
